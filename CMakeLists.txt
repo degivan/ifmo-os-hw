@@ -4,4 +4,4 @@ project(cplusfield)
 set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_FLAGS -pthread)
 
-add_executable(ifmo-os-hw hw0/hello_world.c)
+add_executable(ifmo-os-hw hw1/cat.c)
