@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <zconf.h>
 
-int caught = 0;
+int handled_signal = 0;
 int is_alarm = 0;
 pid_t cpid;
 
@@ -17,8 +17,8 @@ void handler(int sig, siginfo_t *siginfo, void *_) {
         is_alarm = 1;
         return;
     }
-    if (caught == 0) {
-        caught = sig;
+    if (handled_signal == 0) {
+        handled_signal = sig;
         cpid = siginfo->si_pid;
     }
 }
@@ -44,8 +44,8 @@ int main() {
 
     alarm(10);
     while (is_alarm == 0) {
-        if (caught != 0) {
-            printf("%s from %d\n", caught == SIGUSR1 ? "SIGUSR1" : "SIGUSR2", cpid);
+        if (handled_signal != 0) {
+            printf("%s from %d\n", handled_signal == SIGUSR1 ? "SIGUSR1" : "SIGUSR2", cpid);
             return 0;
         }
         pause();
