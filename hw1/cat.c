@@ -11,18 +11,6 @@
 
 const size_t BUF_CAP = 1000;
 
-bool check_errors(ssize_t size) {
-    if (size == -1) {
-        if (errno == EINTR) {
-            return false;
-        } else {
-            printf("Error: %s", strerror(errno));
-            return true;
-        }
-    }
-    return false;
-}
-
 int main(size_t argc, char** argv) {
     int fd;
     char buffer[BUF_CAP];
@@ -36,14 +24,24 @@ int main(size_t argc, char** argv) {
     }
 
     while ((bytes_read = read(fd, buffer, BUF_CAP)) != 0) {
-        if (check_errors(bytes_read)) {
-            return 1;
+        if (bytes_read == -1) {
+            if (errno == EINTR) {
+                continue;
+            } else {
+                fprintf(stderr, "error : %s\n",  strerror(errno));
+                return 1;
+            }
         }
         ssize_t bytes_write  = 0;
         do {
             ssize_t iteration_write = write(fd, buffer + bytes_write, (size_t) (bytes_read - bytes_write));
-            if (check_errors(iteration_write)) {
-                return 1;
+            if (iteration_write == -1) {
+                if (errno == EINTR) {
+                    continue;
+                } else {
+                    fprintf(stderr, "error : %s\n",  strerror(errno));
+                    return 1;
+                }
             }
             bytes_write += iteration_write;
         } while (bytes_write < bytes_read);

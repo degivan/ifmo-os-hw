@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(ifmo-os-hw)
 
-set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_CXX_STANDARD 11)
 
-add_executable(ifmo-os-hw hw3/sigusr.c)
+add_executable(ifmo-os-hw hw1/cat.c)
