@@ -54,6 +54,19 @@ struct inode {
 Допустимо не более OPEN_MAX дескрипторов файлов.
 Таблица дескрипторов файлов имеет следующую структуру.
 
+**open()**:
+![text](https://pp.userapi.com/c840335/v840335240/5e643/fs0jPhWKnVg.jpg)
+
+**close()**:
+![text](https://pp.userapi.com/c840335/v840335240/5e64f/yNP733EaEvE.jpg)
+
+**chroot**:
+```cpp
+int chroot(const char *path);
+```
+
+![text](https://pp.userapi.com/c840335/v840335240/5e657/cIWdpz0WxaM.jpg)
+
 **dup, dup2**:
 ```cpp
 int dup(int oldfd);
@@ -111,7 +124,10 @@ mode_t umask(mode_t mask);
 mask & 0777 (т.е. из mask используются только биты прав
 доступа к файлу) и возвращает предыдущее значение маски.
 
+**chmod, chown**:
 
+[chmod](http://ru.manpages.org/chmod/2)
+[chown](http://ru.manpages.org/chown/2)
 
 ### Ссылки
 
