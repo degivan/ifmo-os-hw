@@ -1,10 +1,10 @@
+#include <fcntl.h>
 #include <cstring>
-#include <signal.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include <string>
-#include <zconf.h>
 #include <vector>
 #include <sstream>
-#include <wait.h>
 
 using namespace std;
 
@@ -109,6 +109,7 @@ void check_sig_intr() {
             kill(c, SIGINT);
         }
     }
+    sig_intr = false;
 }
 
 vector<string> &split(const string &s, char delimeter, vector<string> &res) {
@@ -126,12 +127,12 @@ char **get_args(const string &command) {
     vector<string> words;
     split(command, ' ', words);
 
-    char **args = new char *[words.size() + 1];
+    auto **args = new char *[words.size() + 1];
     for (size_t i = 0; i < words.size(); i++) {
         args[i] = new char[words[i].size()];
         strcpy(args[i], words[i].c_str());
     }
-    args[words.size()] = NULL;
+    args[words.size()] = nullptr;
     return args;
 }
 
@@ -166,8 +167,8 @@ bool exec_command(const string &command, int *infd, int *outfd) {
 }
 
 bool exec_commandpipe(const vector<string> &cpipe) {
-    int *infd = new int[2];
-    int *outfd = new int[2];
+    auto *infd = new int[2];
+    auto *outfd = new int[2];
     firstfd = infd;
     if (pipe(infd) == -1) {
         return false;
@@ -176,30 +177,30 @@ bool exec_commandpipe(const vector<string> &cpipe) {
         if (pipe(outfd) == -1) {
             if (firstfd != infd) {
                 close_pipe(infd);
-                return false;
             }
-            if (!exec_command(cpipe[i], infd, outfd)) {
-                if (firstfd != infd) {
-                    close_pipe(infd);
-                }
-                close_pipe(firstfd);
-                close_pipe(outfd);
-                return false;
-            }
+            close_pipe(firstfd);
+            return false;
+        }
+        if (!exec_command(cpipe[i], infd, outfd)) {
             if (firstfd != infd) {
                 close_pipe(infd);
             }
-            infd = outfd;
-            outfd = new int[2];
+            close_pipe(firstfd);
+            close_pipe(outfd);
+            return false;
         }
+        if (firstfd != infd) {
+            close_pipe(infd);
+        }
+        infd = outfd;
+        outfd = new int[2];
     }
-    bool success = exec_command(cpipe.back(), infd, NULL);
+    bool success = exec_command(cpipe.back(), infd, nullptr);
     if (firstfd != infd) {
         close_pipe(infd);
     }
     return success;
 }
-
 
 int main() {
     struct sigaction sa;
@@ -216,7 +217,7 @@ int main() {
     size_t checked_symbols = 0;
     string command{};
     env();
-    while ((ssize = read(STDIN_FILENO, buffer, BUF_MAX_SIZE)) != 0) {
+    while ((ssize = read(STDIN_FILENO, buffer, BUF_MAX_SIZE)) != 0 || !command.empty()) {
         if (ssize == -1) {
             check_error();
             continue;
@@ -245,7 +246,6 @@ int main() {
         }
         vector<string> subcommands{};
         split(com, '|', subcommands);
-
         bool success = exec_commandpipe(subcommands);
         if (success) {
             write_all(firstfd[1], tail);
@@ -266,7 +266,7 @@ int main() {
 
         for (pid_t c : children) {
             while(true) {
-                if (waitpid(c, NULL, 0) == -1) {
+                if (waitpid(c, nullptr, 0) == -1) {
                     check_sig_intr();
                     continue;
                 }
@@ -285,15 +285,13 @@ int main() {
                     check_error();
                     continue;
                 }
-                command += {buffer, (size_t) size};
+                command += {buffer, (size_t) ssize};
             }
             try_close(firstfd[0]);
             delete [] firstfd;
         }
         sig_intr = false;
         first_dead = false;
-
         env();
     }
-
 }
