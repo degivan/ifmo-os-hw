@@ -160,7 +160,7 @@ bool exec_command(const string &command, int *infd, int *outfd) {
             close_pipe(outfd);
         }
         close_pipe(firstfd);
-        (execvp(args[0], const_cast<char* const*>(args)), "execution a command \'" + string{args[0]} + "\'");
+        execvp(args[0], const_cast<char* const*>(args));
     }
     children.push_back(cpid);
     return true;
