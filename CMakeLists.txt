@@ -3,4 +3,5 @@ project(ifmo-os-hw)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(ifmo-os-hw hw1/cat.c)
+
+add_executable(ifmo-os-hw hw5/rshd.cpp)
