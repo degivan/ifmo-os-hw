@@ -52,7 +52,6 @@ struct fd_container {
     fd_type type;
     string write_queue;
 
-    //returns how much bytes read
     int read_data() {
         char buffer[BUFFER_SIZE];
         int bytes_read = read(fd.fd, buffer, BUFFER_SIZE);
