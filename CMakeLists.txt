@@ -3,4 +3,4 @@ project(ifmo-os-hw)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(ifmo-os-hw hw4/simplesh.cpp)
+add_executable(ifmo-os-hw hw5/rshd.cpp)
